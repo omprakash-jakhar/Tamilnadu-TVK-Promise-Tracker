@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TVK Sarkar Promises — Tamil Nadu Promise Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c8960c;
+    --gold-light: #f0b429;
+    --gold-pale: #fff8e7;
+    --red: #c0392b;
+    --green: #1a7a4a;
+    --green-light: #e8f5ee;
+    --blue: #1a4a8a;
+    --blue-light: #e8eef8;
+    --orange: #d35400;
+    --orange-light: #fdf2e9;
+    --grey: #6b7280;
+    --ink: #1a1a1a;
+    --paper: #fdfaf5;
+    --border: #e0d5c5;
+    --pending: #6b7280;
+    --fulfilled: #1a7a4a;
+    --progress: #1a4a8a;
+    --evaded: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--ink);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg, transparent, transparent 60px,
+      rgba(200,150,12,0.07) 60px, rgba(200,150,12,0.07) 61px
+    );
+  }
+  .live-badge {
+    background: var(--red);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    letter-spacing: 2px;
+    display: inline-block;
+    animation: blink 2s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 5%;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .party-emblem {
+    width: 52px; height: 52px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(200,150,12,0.3);
+  }
+  .header-label { flex: 1; }
+  .header-label small {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold-light);
+    text-transform: uppercase;
+  }
+  .header-label h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 400;
+    color: white;
+    line-height: 1.1;
+  }
+  .header-label h1 span { color: var(--gold-light); }
+
+  .header-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  @media(max-width:640px) { .header-body { grid-template-columns: 1fr; } }
+
+  .cm-card {
+    padding: 28px 5%;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  .cm-card h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(22px, 3.5vw, 34px);
+    color: var(--gold-light);
+    font-weight: 400;
+  }
+  .cm-card .cm-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .cm-meta-item label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.45);
+    display: block;
+    text-transform: uppercase;
+  }
+  .cm-meta-item span {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .countdown-card {
+    padding: 28px 5%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .countdown-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .countdown-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .countdown-unit {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 10px 14px;
+    text-align: center;
+    min-width: 62px;
+  }
+  .countdown-unit .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--gold-light);
+    display: block;
+  }
+  .countdown-unit .unit-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: white;
+    border-bottom: 2px solid var(--border);
+    padding: 20px 5%;
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    padding: 12px 8px;
+    border-radius: 8px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+  }
+  .stat-box .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    line-height: 1;
+    display: block;
+  }
+  .stat-box .stat-lbl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--grey);
+    text-transform: uppercase;
+    margin-top: 4px;
+    display: block;
+  }
+  .stat-box.fulfilled .stat-num { color: var(--fulfilled); }
+  .stat-box.progress .stat-num { color: var(--progress); }
+  .stat-box.evaded .stat-num { color: var(--evaded); }
+  .stat-box.pending .stat-num { color: var(--pending); }
+  .stat-box.total .stat-num { color: var(--ink); }
+
+  /* Progress Bar */
+  .progress-track {
+    background: white;
+    padding: 14px 5%;
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--grey);
+    letter-spacing: 1px;
+  }
+  .progress-bar-outer {
+    height: 10px;
+    background: #f0ebe0;
+    border-radius: 99px;
+    overflow: hidden;
+    display: flex;
+  }
+  .progress-segment {
+    height: 100%;
+    transition: width 1s ease;
+  }
+  .seg-fulfilled { background: var(--fulfilled); }
+  .seg-progress { background: var(--progress); }
+  .seg-evaded { background: var(--evaded); }
+
+  /* ── NAV ── */
+  .section-nav {
+    background: var(--ink);
+    padding: 10px 5%;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .section-nav::-webkit-scrollbar { display: none; }
+  .nav-pill {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.65);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .nav-pill:hover {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--gold);
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 5%;
+  }
+
+  /* ── PROMISE SECTION ── */
+  .promise-section {
+    margin-bottom: 48px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-icon {
+    font-size: 22px;
+    line-height: 1;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    flex: 1;
+  }
+  .section-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--grey);
+    background: #f0ebe0;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── PROMISE CARD ── */
+  .promise-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .promise-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .promise-card-inner {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+  }
+  .promise-number {
+    background: #f8f5ef;
+    border-right: 1px solid var(--border);
+    padding: 16px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--grey);
+    display: flex;
+    align-items: flex-start;
+    min-width: 42px;
+    justify-content: center;
+    font-weight: 600;
+  }
+  .promise-body {
+    padding: 14px 16px;
+    flex: 1;
+  }
+  .promise-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .promise-update {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--blue-light);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 4px 4px 0;
+    font-size: 12.5px;
+    color: #333;
+    line-height: 1.6;
+  }
+  .promise-update.fulfilled-note {
+    background: var(--green-light);
+    border-left-color: var(--green);
+  }
+  .update-source {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--blue);
+    text-decoration: none;
+    border-bottom: 1px solid var(--blue);
+  }
+  .update-source:hover { opacity: .7; }
+  .promise-status {
+    padding: 14px 14px 14px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+  .status-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 9px;
+    border-radius: 4px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .status-badge.pending {
+    background: #f3f4f6;
+    color: var(--pending);
+    border: 1px solid #d1d5db;
+  }
+  .status-badge.fulfilled {
+    background: var(--green-light);
+    color: var(--fulfilled);
+    border: 1px solid #b7dfca;
+  }
+  .status-badge.progress {
+    background: var(--blue-light);
+    color: var(--blue);
+    border: 1px solid #b5cae8;
+  }
+  .status-badge.evaded {
+    background: #fdecea;
+    color: var(--evaded);
+    border: 1px solid #f5bdb9;
+  }
+
+  /* ── LEGEND ── */
+  .legend-bar {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .legend-bar strong {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-fulfilled { background: var(--fulfilled); }
+  .dot-progress { background: var(--progress); }
+  .dot-evaded { background: var(--evaded); }
+  .dot-pending { background: #9ca3af; }
+
+  /* ── KEY PROMISES ── */
+  .key-promises-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  @media(max-width:560px) { .key-promises-grid { grid-template-columns: 1fr; } }
+  .key-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .key-card-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+    background: var(--gold-pale);
+    border: 1px solid #e8d08a;
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+  .key-card-text { font-size: 13px; color: var(--ink); flex: 1; line-height: 1.5; }
+  .key-card-badge { flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.55);
+    padding: 40px 5%;
+    margin-top: 60px;
+  }
+  .footer-grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  @media(max-width:640px) { .footer-grid { grid-template-columns: 1fr; } }
+  .footer-section h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: white;
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+  .footer-section p { font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+  .footer-section a {
+    color: var(--gold-light);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(200,150,12,0.4);
+  }
+  .footer-section a:hover { opacity: .8; }
+  .methodology-steps { counter-reset: step; }
+  .methodology-step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .methodology-step::before {
+    counter-increment: step;
+    content: counter(step, decimal-leading-zero);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .footer-note {
+    max-width: 900px;
+    margin: 32px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: none;
+    margin-top: 10px;
+  }
+  .submit-btn:hover { background: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="header-top">
+    <div class="live-badge">● LIVE TRACKER</div>
+    <div class="party-emblem">🎵</div>
+    <div class="header-label">
+      <small>Tamil Nadu · 2026–2031 · TVK Sarkar</small>
+      <h1>TVK Sarkar <span>Promises</span></h1>
+    </div>
+  </div>
+  <div class="header-body">
+    <div class="cm-card">
+      <small style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;">Chief Minister</small>
+      <h2>C. Joseph Vijay</h2>
+      <div class="cm-meta">
+        <div class="cm-meta-item">
+          <label>Oath Ceremony</label>
+          <span>10 May 2026, Nehru Indoor Stadium</span>
+        </div>
+        <div class="cm-meta-item">
+          <label>Seats Won</label>
+          <span>108 / 234 (Largest Party)</span>
+        </div>
+        <div class="cm-meta-item">
+          <label>Alliance Support</label>
+          <span>Congress, CPI, CPI(M), VCK, IUML</span>
+        </div>
+        <div class="cm-meta-item">
+          <label>Term Ends</label>
+          <span>May 2031</span>
+        </div>
+      </div>
+    </div>
+    <div class="countdown-card">
+      <div class="countdown-label">Time remaining in term</div>
+      <div class="countdown-grid">
+        <div class="countdown-unit"><span class="num" id="cd-y">—</span><span class="unit-label">Years</span></div>
+        <div class="countdown-unit"><span class="num" id="cd-mo">—</span><span class="unit-label">Months</span></div>
+        <div class="countdown-unit"><span class="num" id="cd-d">—</span><span class="unit-label">Days</span></div>
+        <div class="countdown-unit"><span class="num" id="cd-h">—</span><span class="unit-label">Hours</span></div>
+        <div class="countdown-unit"><span class="num" id="cd-m">—</span><span class="unit-label">Mins</span></div>
+      </div>
+      <div style="margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);">Days in office: <span id="days-in-office" style="color:var(--gold-light)">—</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar">
+  <div class="stat-box total">
+    <span class="stat-num">60</span>
+    <span class="stat-lbl">Total Promises</span>
+  </div>
+  <div class="stat-box fulfilled">
+    <span class="stat-num" id="s-fulfilled">2</span>
+    <span class="stat-lbl">✓ Fulfilled</span>
+  </div>
+  <div class="stat-box progress">
+    <span class="stat-num" id="s-progress">5</span>
+    <span class="stat-lbl">◑ In Progress</span>
+  </div>
+  <div class="stat-box evaded">
+    <span class="stat-num" id="s-evaded">0</span>
+    <span class="stat-lbl">✗ Evaded</span>
+  </div>
+  <div class="stat-box pending">
+    <span class="stat-num" id="s-pending">53</span>
+    <span class="stat-lbl">○ Pending</span>
+  </div>
+  <div class="stat-box" style="background:#f8f5ef;">
+    <span class="stat-num" style="color:var(--gold);" id="s-rate">12%</span>
+    <span class="stat-lbl">Completion</span>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-track">
+  <div class="progress-header">
+    <span>Promise Tracker — Day <span id="day-count">2</span></span>
+    <span>Completion: <span id="pct">12%</span></span>
+  </div>
+  <div class="progress-bar-outer">
+    <div class="progress-segment seg-fulfilled" style="width:3.3%"></div>
+    <div class="progress-segment seg-progress" style="width:8.3%"></div>
+    <div class="progress-segment seg-evaded" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="section-nav">
+  <a class="nav-pill" href="#key-9">⭐ 9 Guarantees</a>
+  <a class="nav-pill" href="#women">👩 Women</a>
+  <a class="nav-pill" href="#youth">🎓 Youth &amp; Jobs</a>
+  <a class="nav-pill" href="#health">🏥 Health</a>
+  <a class="nav-pill" href="#education">📚 Education</a>
+  <a class="nav-pill" href="#farmers">🌾 Farmers</a>
+  <a class="nav-pill" href="#economy">🏭 Economy</a>
+  <a class="nav-pill" href="#governance">🏛 Governance</a>
+  <a class="nav-pill" href="#social">⚖ Social Justice</a>
+  <a class="nav-pill" href="#environment">🌿 Environment</a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="main-content">
+
+  <!-- Legend -->
+  <div class="legend-bar">
+    <strong>Status key:</strong>
+    <div class="legend-item"><div class="legend-dot dot-fulfilled"></div> Fulfilled</div>
+    <div class="legend-item"><div class="legend-dot dot-progress"></div> In Progress</div>
+    <div class="legend-item"><div class="legend-dot dot-evaded"></div> Evaded</div>
+    <div class="legend-item"><div class="legend-dot dot-pending"></div> Pending</div>
+    <div style="flex:1;text-align:right;font-size:12px;color:var(--grey);">Source: TVK Official Manifesto 2026 · Released 29 March 2026</div>
+  </div>
+
+  <!-- ── 9 KEY GUARANTEES ── -->
+  <section class="promise-section" id="key-9">
+    <div class="section-header">
+      <div class="section-icon">⭐</div>
+      <h2 class="section-title">TVK's 9 Core Guarantees — The Headline Commitments</h2>
+      <div class="section-count">9 Promises</div>
+    </div>
+    <div class="key-promises-grid">
+
+      <div class="key-card">
+        <div class="key-card-num">01</div>
+        <div class="key-card-text">₹2,500/month financial assistance to every woman head of family below 60 years</div>
+        <div class="key-card-badge"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">02</div>
+        <div class="key-card-text">Full crop loan waiver for farmers with under 5 acres; 50% for larger holdings</div>
+        <div class="key-card-badge"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">03</div>
+        <div class="key-card-text">₹3,000/month for senior citizens, widows, and persons with disabilities</div>
+        <div class="key-card-badge"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">04</div>
+        <div class="key-card-text">8 grams of gold + silk saree for brides from families with annual income below ₹5 lakh (Annan Seer Thittam)</div>
+        <div class="key-card-badge"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">05</div>
+        <div class="key-card-text">200 units free electricity monthly per household + piped drinking water for all</div>
+        <div class="key-card-badge"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">06</div>
+        <div class="key-card-text">5 lakh new government jobs + 5 lakh paid internships over 5 years</div>
+        <div class="key-card-badge"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">07</div>
+        <div class="key-card-text">₹25 lakh health insurance per family under enhanced Kalaignar Magalir Urimai</div>
+        <div class="key-card-badge"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">08</div>
+        <div class="key-card-text">Drug-Free Tamil Nadu Mission — Anti-drug protection zones around all schools</div>
+        <div class="key-card-badge"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+
+      <div class="key-card">
+        <div class="key-card-num">09</div>
+        <div class="key-card-text">Corruption-free governance via Vetri TN Super App + Citizen Privilege Card for all welfare access</div>
+        <div class="key-card-badge"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+
+    </div>
+    <p style="font-size:12.5px;color:var(--grey);padding:10px 0;">TVK framed these as <em>"Not promises — Programs"</em> in their manifesto, each with a stated financial commitment and delivery department.</p>
+  </section>
+
+  <!-- ── WOMEN ── -->
+  <section class="promise-section" id="women">
+    <div class="section-header">
+      <div class="section-icon">👩</div>
+      <h2 class="section-title">Women's Welfare &amp; Safety</h2>
+      <div class="section-count">12 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">₹2,500 monthly financial assistance deposited directly into the bank account of every woman head of family below the age of 60.</div>
+          <div class="promise-update">
+            Signed into action on oath day (May 10, 2026) — CM Vijay signed files ordering implementation of 200-unit free power and a special women's safety unit. Finance department directed to prepare rollout plan for the monthly stipend. No disbursement yet; enrolment modality not yet announced.
+            <br><a class="update-source" href="https://www.newsonair.gov.in/tvk-founder-c-joseph-vijay-to-take-oath-as-tamil-nadu-chief-minister-today/" target="_blank">↗ DD News On Air · May 10, 2026</a>
+          </div>
+        </div>
+        <div class="promise-status"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">6 free LPG cylinders per year per household to ease the cost of living for families.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">Free bus travel for women in all government-run buses across Tamil Nadu without restrictions.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Annan Seer Thittam — 8 grams of gold and a silk saree for brides from families with annual income below ₹5 lakh at the time of marriage.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Interest-free loans up to ₹5 lakh for women-led Self Help Groups to encourage financial independence and entrepreneurship.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">6</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish a dedicated Women's Safety Department and special women's courts to fast-track cases of violence and harassment.</div>
+          <div class="promise-update">Special women's safety unit ordered on oath day through files signed at Fort St. George Secretariat.
+            <br><a class="update-source" href="https://www.newsonair.gov.in/tvk-founder-c-joseph-vijay-to-take-oath-as-tamil-nadu-chief-minister-today/" target="_blank">↗ DD News On Air · May 10, 2026</a>
+          </div>
+        </div>
+        <div class="promise-status"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">7</div>
+        <div class="promise-body">
+          <div class="promise-text">Newborn kit — gold ring and essential baby items — for every new mother, prioritising girl child births.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">8</div>
+        <div class="promise-body">
+          <div class="promise-text">₹18,000 monthly honorarium for all Anganwadi workers, recognising them as formal government employees.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">9</div>
+        <div class="promise-body">
+          <div class="promise-text">Regularise all contractual nurses in government hospitals and ensure equal pay for equal work.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">10</div>
+        <div class="promise-body">
+          <div class="promise-text">₹50,000 financial assistance for mothers of newborn girls from economically weaker sections.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">11</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish women-only safe zones and CCTV monitoring in all public transport hubs, bus stands, and railway stations.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">12</div>
+        <div class="promise-body">
+          <div class="promise-text">Ensure welfare of transgender persons — identity recognition, social security, and employment opportunities.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── YOUTH & JOBS ── -->
+  <section class="promise-section" id="youth">
+    <div class="section-header">
+      <div class="section-icon">🎓</div>
+      <h2 class="section-title">Youth &amp; Employment</h2>
+      <div class="section-count">9 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">Create 5 lakh new government jobs and 5 lakh paid government internships over the 5-year term to stem unemployment and brain drain.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">₹4,000 monthly unemployment allowance for graduates above 29 years who are jobless and actively seeking work. ₹2,500 for diploma holders; ₹8,000 for ITI graduates undergoing upskilling.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">₹10,000 monthly assistance for unemployed graduates undergoing government-approved skill training programmes.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Tamil First Policy — enact legislation ensuring 75% of all private sector jobs in Tamil Nadu are reserved for local residents.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Creative Entrepreneurs Scheme — support 1.5 lakh new entrepreneurs with mentorship, seed funding, and market access through 500 specialised creative schools.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">6</div>
+        <div class="promise-body">
+          <div class="promise-text">CM People Service Associate programme — create 5 lakh village-level service employment positions at ₹18,000 per month salary.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">7</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish a dedicated Ministry of Artificial Intelligence — build AI universities, AI cities, and digital innovation hubs across Tamil Nadu.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">8</div>
+        <div class="promise-body">
+          <div class="promise-text">Conduct all TNPSC and government exams on a strict, pre-announced transparent schedule — eliminate delays, paper leaks, and corruption.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">9</div>
+        <div class="promise-body">
+          <div class="promise-text">Free coaching for competitive exams (UPSC, TNPSC, banking) in all districts — targeting youth from rural and marginalised backgrounds.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HEALTH ── -->
+  <section class="promise-section" id="health">
+    <div class="section-header">
+      <div class="section-icon">🏥</div>
+      <h2 class="section-title">Healthcare &amp; Public Welfare</h2>
+      <div class="section-count">6 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">₹25 lakh health insurance coverage per family — free treatment at all government and empanelled private hospitals across Tamil Nadu.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">Annual free full-body health checkup for every citizen above 40 years — early detection focus for cancer, diabetes, and heart disease.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">Citizen Privilege Card — a single card linking all welfare benefits, health insurance, and government services to eliminate corruption in delivery.</div>
+          <div class="promise-update">
+            Announced as a Day-1 priority governance reform at oath signing. Implementation framework being designed.
+            <br><a class="update-source" href="https://www.newsonair.gov.in/tvk-founder-c-joseph-vijay-to-take-oath-as-tamil-nadu-chief-minister-today/" target="_blank">↗ DD News On Air · May 10, 2026</a>
+          </div>
+        </div>
+        <div class="promise-status"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish new government medical colleges in underserved districts — expand MBBS seats to address the Tamil Nadu doctor shortage.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Drug-Free Tamil Nadu Mission — create anti-drug protection zones with 500m radius around all educational institutions; fast-track prosecution of drug offenders.</div>
+          <div class="promise-update">
+            Special anti-drug unit ordered via files signed on oath day, alongside women's safety unit.
+            <br><a class="update-source" href="https://www.newsonair.gov.in/tvk-founder-c-joseph-vijay-to-take-oath-as-tamil-nadu-chief-minister-today/" target="_blank">↗ DD News On Air · May 10, 2026</a>
+          </div>
+        </div>
+        <div class="promise-status"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">6</div>
+        <div class="promise-body">
+          <div class="promise-text">Upgrade all Primary Health Centres to provide 24-hour services; fill all vacant doctor and paramedic posts within 6 months.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EDUCATION ── -->
+  <section class="promise-section" id="education">
+    <div class="section-header">
+      <div class="section-icon">📚</div>
+      <h2 class="section-title">Education</h2>
+      <div class="section-count">7 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">₹15,000 annual financial assistance to families of children studying in government and government-aided schools to prevent school dropouts.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">Education loans up to ₹20 lakh without collateral for higher education — interest-free for farmers' children; waive existing education loans for students below the poverty line.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish 100 residential schools named after K. Kamaraj in rural areas to provide quality education to children from marginalised communities.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Build 500 "Creative Schools" with STEM, arts, coding, and vocational tracks — targeting skill development aligned to the Orange Economy.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Demand that Education be moved from the Concurrent List back to the State List — giving Tamil Nadu full autonomy over its curriculum.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">6</div>
+        <div class="promise-body">
+          <div class="promise-text">Waive NEET for Tamil Nadu students and push for state-level medical admissions based solely on Class 12 marks.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">7</div>
+        <div class="promise-body">
+          <div class="promise-text">Ensure basic minimum pay for all contractual and para teachers across government schools and government-aided colleges.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FARMERS ── -->
+  <section class="promise-section" id="farmers">
+    <div class="section-header">
+      <div class="section-icon">🌾</div>
+      <h2 class="section-title">Farmers, Fishermen &amp; Rural Economy</h2>
+      <div class="section-count">8 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">Complete crop loan waiver for farmers owning less than 5 acres; 50% waiver for those with larger holdings — to relieve immediate agrarian distress.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">Higher Minimum Support Prices backed by legislation — ₹4,500/ton for sugarcane; enhanced MSP for paddy and other key crops.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">100% free crop insurance coverage for all registered farmers — government to bear full premium cost.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Free higher education for all children of farmers — no tuition fees at government colleges; scholarship for private institutions.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Lakshya Veetu scheme for fishermen — subsidised boats, GPS systems, safety equipment, and enrolment in social security schemes.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">6</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish cold storage facilities, agri-processing units, and direct market access centres in every taluk to reduce farmer-to-market losses.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">7</div>
+        <div class="promise-body">
+          <div class="promise-text">Resolve the Sri Lanka fishermen arrests issue — take up Tamil Nadu fishermen's safety at national and diplomatic level.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">8</div>
+        <div class="promise-body">
+          <div class="promise-text">Improve canal irrigation infrastructure; modernise water management across the Cauvery and other river basins to address drought vulnerability.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ECONOMY ── -->
+  <section class="promise-section" id="economy">
+    <div class="section-header">
+      <div class="section-icon">🏭</div>
+      <h2 class="section-title">Economy, MSME &amp; Infrastructure</h2>
+      <div class="section-count">5 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">200 units free electricity per month per household; no peak-hour surcharges for small businesses and micro-enterprises.</div>
+          <div class="promise-update">
+            CM signed the 200-unit free power order as one of the first files at the Secretariat on oath day.
+            <br><a class="update-source" href="https://www.newsonair.gov.in/tvk-founder-c-joseph-vijay-to-take-oath-as-tamil-nadu-chief-minister-today/" target="_blank">↗ DD News On Air · May 10, 2026</a>
+          </div>
+        </div>
+        <div class="promise-status"><span class="status-badge fulfilled">✓ Fulfilled</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">₹15,000 crore MSME guarantee fund — interest-free credit access for small and micro enterprises; cluster development in traditional industries.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">Piped drinking water to every household in Tamil Nadu — complete the unfinished Jal Jeevan Mission infrastructure at war footing.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Housing for all — complete pending PMAY units; launch a new TVK housing scheme targeting 10 lakh new homes for the homeless over 5 years.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Demand Special Category Status for Tamil Nadu from the Central Government — fight for Tamil Nadu's rightful share of GST devolution and Central funds.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── GOVERNANCE ── -->
+  <section class="promise-section" id="governance">
+    <div class="section-header">
+      <div class="section-icon">🏛</div>
+      <h2 class="section-title">Governance &amp; Transparency</h2>
+      <div class="section-count">5 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">Vetri TN Super App — a single government super-application enabling citizens to access all certificates, apply for welfare schemes, and file complaints without visiting offices.</div>
+          <div class="promise-update">Announced as a core Day-1 governance reform; development brief issued to IT department.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge progress">◑ In Progress</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">Right to Service Act — guarantee all government certificates (birth, caste, income, residence) within 21 days; penalise officials who delay.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">Conduct a comprehensive Caste Census in Tamil Nadu — use data to ensure proportional representation in government jobs and education.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Adopt a Two-Language Policy (Tamil and English) — oppose the imposition of Hindi in Tamil Nadu schools and government offices.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Abolish the role of the Governor in obstructing elected state government decisions — pass a resolution in the Assembly and pursue constitutional amendment.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SOCIAL JUSTICE ── -->
+  <section class="promise-section" id="social">
+    <div class="section-header">
+      <div class="section-icon">⚖</div>
+      <h2 class="section-title">Social Justice &amp; Inclusive Development</h2>
+      <div class="section-count">5 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">₹3,000 monthly assistance for all senior citizens, widows, and persons with disabilities — universal coverage regardless of Below Poverty Line status.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">Ensure proportional representation for SC, ST, BC, and MBC communities across all government bodies, boards, and public-sector leadership roles.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish a dedicated Tribal University in Tamil Nadu; prioritise development of Adivasi communities in the Nilgiris and other hill districts.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Establish a Welfare Board for gig workers and platform workers — provide social security, health insurance, and minimum income guarantee.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">5</div>
+        <div class="promise-body">
+          <div class="promise-text">Social harmony guarantee — zero tolerance for communal violence; strict enforcement against caste discrimination and untouchability in rural areas.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ENVIRONMENT ── -->
+  <section class="promise-section" id="environment">
+    <div class="section-header">
+      <div class="section-icon">🌿</div>
+      <h2 class="section-title">Environment &amp; Climate</h2>
+      <div class="section-count">4 Promises</div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">1</div>
+        <div class="promise-body">
+          <div class="promise-text">₹3,000 crore dedicated climate budget — invest in renewable energy, coastal protection, and climate-resilient agriculture over 5 years.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">2</div>
+        <div class="promise-body">
+          <div class="promise-text">Accelerate solar and wind energy adoption — aim for Tamil Nadu to generate 50% of its electricity from renewable sources by 2030.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">3</div>
+        <div class="promise-body">
+          <div class="promise-text">Protect and restore Tamil Nadu's coastal wetlands and mangrove ecosystems — enforce anti-encroachment laws strictly in the Palk Bay and Gulf of Mannar.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <div class="promise-card-inner">
+        <div class="promise-number">4</div>
+        <div class="promise-body">
+          <div class="promise-text">Plant 10 crore trees over 5 years under a Tamil Nadu Green Mission — involve school students, SHGs, and local bodies in plantation drives.</div>
+        </div>
+        <div class="promise-status"><span class="status-badge pending">○ Pending</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to read + Submit -->
+  <div style="background:var(--gold-pale);border:1px solid #e8d08a;border-radius:10px;padding:20px 24px;margin-top:8px;">
+    <strong style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;">How to read this tracker</strong>
+    <p style="margin-top:8px;font-size:13.5px;line-height:1.7;color:var(--ink);">Each promise is logged as stated in TVK's official manifesto (<em>released 29 March 2026</em>). Status is updated as events unfold across the 5-year term (2026–2031). This is a non-partisan public ledger — we track facts, not opinions.</p>
+    <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;font-size:13px;">
+      <span style="color:var(--fulfilled);font-weight:600;">✓ Fulfilled</span>
+      <span style="color:var(--progress);font-weight:600;">◑ In Progress</span>
+      <span style="color:var(--evaded);font-weight:600;">✗ Evaded</span>
+      <span style="color:var(--pending);font-weight:600;">○ Pending</span>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-section">
+      <h3>A Note on Good Faith</h3>
+      <p>This tracker was created with genuine good faith — we believe in holding elected governments accountable to the promises they made publicly, and we want this TVK government to succeed in fulfilling them for the people of Tamil Nadu.</p>
+      <p>We are ordinary citizens, not journalists. If you know something has been done, started, or abandoned — please tell us.</p>
+      <a class="submit-btn" href="https://tally.so" target="_blank">✏ Submit an Update or Correction →</a>
+    </div>
+    <div class="footer-section">
+      <h3>Methodology &amp; Standards</h3>
+      <div class="methodology-steps">
+        <div class="methodology-step"><strong>Source of promises:</strong> All promises are drawn directly from TVK's official manifesto released on 29 March 2026 and verified against news reports from the election campaign.</div>
+        <div class="methodology-step"><strong>Source hierarchy:</strong> (1) Official government gazette or GO. (2) Cabinet statement or press release. (3) PTI/ANI wire reports in national publications. Social media posts do not qualify.</div>
+        <div class="methodology-step"><strong>"In Progress"</strong> means a formal order, committee, or allocation has been initiated — with source link. Intent alone does not qualify.</div>
+        <div class="methodology-step"><strong>"Evaded"</strong> means government action has made fulfilment structurally impossible. Pending means it could still happen.</div>
+        <div class="methodology-step"><strong>Term tracked:</strong> Oath — 10 May 2026. All promises tracked over the full 5-year term ending May 2031.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-note">
+    <span>TVK Sarkar Promises · Tamil Nadu Assembly Election 2026 · Non-partisan public record</span>
+    <span>Last updated: 12 May 2026</span>
+  </div>
+</footer>
+
+<script>
+  // Countdown timer
+  function updateCountdown() {
+    const termEnd = new Date('2031-05-10T10:00:00+05:30');
+    const oathDate = new Date('2026-05-10T10:00:00+05:30');
+    const now = new Date();
+
+    // Days in office
+    const daysIn = Math.floor((now - oathDate) / 86400000);
+    document.getElementById('days-in-office').textContent = daysIn + ' days';
+    document.getElementById('day-count').textContent = daysIn + 1;
+
+    // Remaining
+    let diff = termEnd - now;
+    if (diff < 0) diff = 0;
+
+    const totalDays = Math.floor(diff / 86400000);
+    const years = Math.floor(totalDays / 365);
+    const months = Math.floor((totalDays % 365) / 30);
+    const days = totalDays % 30;
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+
+    document.getElementById('cd-y').textContent = years;
+    document.getElementById('cd-mo').textContent = months;
+    document.getElementById('cd-d').textContent = days;
+    document.getElementById('cd-h').textContent = hours;
+    document.getElementById('cd-m').textContent = mins;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 60000);
+</script>
+</body>
+</html>
